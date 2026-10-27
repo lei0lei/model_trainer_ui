@@ -41,6 +41,8 @@ export function JobsPage() {
                   <th className="py-2 pr-3 font-medium">ID</th>
                   <th className="py-2 pr-3 font-medium">数据集</th>
                   <th className="py-2 pr-3 font-medium">模型</th>
+                  <th className="py-2 pr-3 font-medium">任务</th>
+                  <th className="py-2 pr-3 font-medium">设备</th>
                   <th className="py-2 pr-3 font-medium">Epochs</th>
                   <th className="py-2 pr-3 font-medium">状态</th>
                   <th className="py-2 font-medium">说明</th>
@@ -52,6 +54,8 @@ export function JobsPage() {
                     <td className="py-2 pr-3">{item.id}</td>
                     <td className="py-2 pr-3">{item.dataset_name}</td>
                     <td className="py-2 pr-3">{item.model_name}</td>
+                    <td className="py-2 pr-3">{item.task ?? "—"}</td>
+                    <td className="py-2 pr-3">{item.device ?? "—"}</td>
                     <td className="py-2 pr-3">{item.epochs}</td>
                     <td className="py-2 pr-3">
                         <StatusBadge status={item.status} />

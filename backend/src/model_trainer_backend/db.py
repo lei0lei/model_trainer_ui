@@ -39,9 +39,12 @@ def ensure_sqlite_columns() -> None:
     if not settings.database_url.startswith("sqlite"):
         return
     with engine.begin() as conn:
-        columns = {row[1] for row in conn.execute(text("PRAGMA table_info(datasets)"))}
-        if "tasks" not in columns:
+        dataset_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(datasets)"))}
+        if "tasks" not in dataset_cols:
             conn.execute(text("ALTER TABLE datasets ADD COLUMN tasks VARCHAR(64) DEFAULT 'detect'"))
+        job_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(training_jobs)"))}
+        if "config" not in job_cols:
+            conn.execute(text("ALTER TABLE training_jobs ADD COLUMN config TEXT DEFAULT '{}'"))
 
 
 def get_db() -> Generator[Session, None, None]:

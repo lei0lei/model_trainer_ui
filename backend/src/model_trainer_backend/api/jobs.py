@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -10,7 +12,16 @@ from model_trainer_backend.schemas.job import JobCreate, JobOut
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
 
+def _config_dict(job: TrainingJob) -> dict:
+    try:
+        data = json.loads(job.config or "{}")
+    except json.JSONDecodeError:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
 def _to_out(job: TrainingJob, dataset_name: str) -> JobOut:
+    cfg = _config_dict(job)
     return JobOut(
         id=job.id,
         dataset_id=job.dataset_id,
@@ -19,6 +30,12 @@ def _to_out(job: TrainingJob, dataset_name: str) -> JobOut:
         epochs=job.epochs,
         status=job.status,
         message=job.message,
+        task=str(cfg.get("task") or "detect"),
+        device=str(cfg.get("device") or "cpu"),
+        imgsz=int(cfg.get("imgsz") or 640),
+        export_onnx=bool(cfg.get("export_onnx")),
+        time=cfg.get("time"),
+        config=cfg,
         created_at=job.created_at,
         updated_at=job.updated_at,
     )
@@ -41,14 +58,18 @@ def create_job(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> JobOut:
+    if body.epochs <= 0 and not body.config.time:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Set epochs or time")
     dataset = db.scalars(select(Dataset).where(Dataset.id == body.dataset_id, Dataset.user_id == user.id)).first()
     if dataset is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dataset not found")
+    payload = body.config.model_dump()
     job = TrainingJob(
         user_id=user.id,
         dataset_id=dataset.id,
         model_name=body.model_name.strip(),
         epochs=body.epochs,
+        config=json.dumps(payload, ensure_ascii=False),
         status="queued",
         message="等待训练 Worker",
     )

@@ -4,7 +4,7 @@
   "scripts": {
     "setup": "uv --directory backend sync && npm --prefix frontend install",
     "dev": "concurrently -k -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:web\"",
-    "dev:api": "uv --directory backend run uvicorn model_trainer_backend.main:app --reload --host 127.0.0.1 --port 8000",
+    "dev:api": "uv --directory backend run python -m uvicorn model_trainer_backend.main:app --reload --host 127.0.0.1 --port 8000",
     "dev:web": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",
     "start": "uv --directory backend run uvicorn model_trainer_backend.main:app --host 0.0.0.0 --port 8000"

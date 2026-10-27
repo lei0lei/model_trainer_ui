@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PathBrowser } from "@/components/PathBrowser"
 import { createDataset, deleteDataset, listDatasets, type DatasetOut, type DatasetTask } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
@@ -18,6 +19,7 @@ export function DatasetsPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [pickingPath, setPickingPath] = useState(false)
 
   async function refresh() {
     const data = await listDatasets()
@@ -105,18 +107,33 @@ export function DatasetsPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="ds-path">本地路径</Label>
-              <Input
-                id="ds-path"
-                placeholder="例如 /data/datasets/coco"
-                value={sourcePath}
-                onChange={(e) => setSourcePath(e.target.value)}
-                required
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="ds-path"
+                  placeholder="例如 D:\\data\\datasets\\coco"
+                  value={sourcePath}
+                  onChange={(e) => setSourcePath(e.target.value)}
+                  required
+                />
+                <Button type="button" variant="outline" onClick={() => setPickingPath(true)}>
+                  浏览
+                </Button>
+              </div>
             </div>
             <Button type="submit" disabled={saving}>
               {saving ? "保存中…" : "保存"}
             </Button>
           </form>
+          {pickingPath ? (
+            <PathBrowser
+              initialPath={sourcePath.trim()}
+              onSelect={(path) => {
+                setSourcePath(path)
+                setPickingPath(false)
+              }}
+              onClose={() => setPickingPath(false)}
+            />
+          ) : null}
         </CardContent>
       </Card>
       <Card>
