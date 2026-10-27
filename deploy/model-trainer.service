@@ -1,0 +1,18 @@
+[Unit]
+Description=Model Trainer UI
+After=network.target
+
+[Service]
+Type=simple
+User=modeltrainer
+Group=modeltrainer
+WorkingDirectory=/opt/model_trainer_ui
+EnvironmentFile=/opt/model_trainer_ui/deploy/model-trainer.env
+Environment=PATH=/home/modeltrainer/.local/bin:/usr/local/bin:/usr/bin
+ExecStart=/opt/model_trainer_ui/scripts/run-prod.sh
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

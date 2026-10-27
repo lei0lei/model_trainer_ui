@@ -218,3 +218,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# App data
+backend/data/
+frontend/.env
+backend/.env
+deploy/model-trainer.env
